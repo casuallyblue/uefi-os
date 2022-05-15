@@ -1,0 +1,12 @@
+[package]
+name = "op_sys"
+version = "0.1.0"
+edition = "2021"
+
+build = "build.rs"
+
+
+[dependencies]
+log = "0.4.17"
+uefi = { version = "0.15.0", features = ["exts"] }
+uefi-services = "0.12.0"

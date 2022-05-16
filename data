@@ -1,0 +1,133 @@
+[2J[01;01H[=3h[2J[01;01HBdsDxe: failed to load Boot0001 "UEFI QEMU HARDDISK QM00001 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Primary,Master,0x0): Not Found
+BdsDxe: loading Boot0002 "EFI Internal Shell" from Fv(7CB8BDC9-F8EB-4F34-AAEA-3EE4AF6516A1)/FvFile(7C04A583-9E3E-4F1C-AD65-E05268D0B4D1)
+BdsDxe: starting Boot0002 "EFI Internal Shell" from Fv(7CB8BDC9-F8EB-4F34-AAEA-3EE4AF6516A1)/FvFile(7C04A583-9E3E-4F1C-AD65-E05268D0B4D1)
+[2J[01;01H[01;01HUEFI Interactive Shell v2.2
+EDK II
+UEFI v2.70 (EDK II, 0x00010000)
+[1m[33m[40mMapping table[0m[37m[40m
+[1m[33m[40m      FS0:[0m[37m[40m [1m[37m[40mAlias(s):[0m[37m[40mHD0a1:;BLK1:
+          PciRoot(0x0)/Pci(0x1,0x1)/Ata(0x0)/HD(1,MBR,0xBE1AFDFA,0x3F,0xFBFC1)
+[1m[33m[40m     BLK0:[0m[37m[40m [1m[37m[40mAlias(s):[0m[37m[40m
+          PciRoot(0x0)/Pci(0x1,0x1)/Ata(0x0)
+[09;01HPress [1m[37m[40mESC[0m[37m[40m in 5 seconds to skip [1m[33m[40mstartup.nsh[0m[37m[40m or any other key to continue.[09;01HPress [1m[37m[40mESC[0m[37m[40m in 4 seconds to skip [1m[33m[40mstartup.nsh[0m[37m[40m or any other key to continue.
+[1m[33m[40mShell> [0m[37m[40mfs0:
+[1m[33m[40mFS0:\> [0m[37m[40mop_sys.efi
+[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[0m[30m[45m[2J[01;01Hhello world[ INFO]:  src/main.rs@061: === Hello World ===
+[ INFO]:  src/main.rs@062: Vendor: AuthenticAMD
+[ INFO]:  src/main.rs@063: CPU Brand Name: AMD Ryzen 5 3600 6-Core Processor
+[ INFO]:  src/main.rs@070: addr: 0, pages: 1, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 4096, pages: 159, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 1048576, pages: 1792, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 8388608, pages: 8, type: ACPI_NON_VOLATILE
+[ INFO]:  src/main.rs@070: addr: 8421376, pages: 3, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 8433664, pages: 1, type: ACPI_NON_VOLATILE
+[ INFO]:  src/main.rs@070: addr: 8437760, pages: 4, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 8454144, pages: 240, type: ACPI_NON_VOLATILE
+[ INFO]:  src/main.rs@070: addr: 9437184, pages: 3072, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 22020096, pages: 764470, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 3153289216, pages: 32, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3153420288, pages: 9985, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 3194318848, pages: 115, type: LOADER_DATA
+[ INFO]:  src/main.rs@070: addr: 3194789888, pages: 215, type: LOADER_CODE
+[ INFO]:  src/main.rs@070: addr: 3195670528, pages: 4, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 3195686912, pages: 51, type: LOADER_CODE
+[ INFO]:  src/main.rs@070: addr: 3195895808, pages: 22, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 3195985920, pages: 55, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3196211200, pages: 8, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 3196243968, pages: 9, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3196280832, pages: 5, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 3196301312, pages: 1547, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3202637824, pages: 25, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3202740224, pages: 4, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3202756608, pages: 5, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3202777088, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3202781184, pages: 54, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203002368, pages: 4, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203018752, pages: 3, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203031040, pages: 4, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203047424, pages: 21, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203133440, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203141632, pages: 3, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203153920, pages: 3, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203166208, pages: 35, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203309568, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203317760, pages: 20, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203399680, pages: 7, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203428352, pages: 35, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203571712, pages: 3, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203584000, pages: 5, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203604480, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203612672, pages: 16, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203678208, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203686400, pages: 3, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203698688, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203706880, pages: 12, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203756032, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203764224, pages: 11, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203809280, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203817472, pages: 5, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203837952, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203846144, pages: 7, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203874816, pages: 5, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203895296, pages: 2, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3203903488, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3203907584, pages: 29, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204026368, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204030464, pages: 2, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204038656, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204042752, pages: 6, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204067328, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204075520, pages: 24, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204173824, pages: 3, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204186112, pages: 1, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204190208, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204194304, pages: 7, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204222976, pages: 7, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204251648, pages: 4, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204268032, pages: 6, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204292608, pages: 4, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204308992, pages: 3, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3204321280, pages: 31, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3204448256, pages: 513, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206549504, pages: 21, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3206635520, pages: 10, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206676480, pages: 10, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3206717440, pages: 4, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206733824, pages: 21, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3206819840, pages: 4, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206836224, pages: 11, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3206881280, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206889472, pages: 1, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3206893568, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206901760, pages: 1, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3206905856, pages: 2, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206914048, pages: 3, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3206926336, pages: 12, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3206975488, pages: 13, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3207028736, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3207032832, pages: 1, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3207036928, pages: 3, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3207049216, pages: 6, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3207073792, pages: 1024, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3211268096, pages: 5, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3211288576, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3211292672, pages: 1, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3211296768, pages: 1, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3211300864, pages: 10, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3211341824, pages: 3, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3211354112, pages: 3, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3211366400, pages: 598, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3213815808, pages: 256, type: RUNTIME_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3214864384, pages: 256, type: RUNTIME_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3215912960, pages: 128, type: RESERVED
+[ INFO]:  src/main.rs@070: addr: 3216437248, pages: 16, type: ACPI_RECLAIM
+[ INFO]:  src/main.rs@070: addr: 3216502784, pages: 128, type: ACPI_NON_VOLATILE
+[ INFO]:  src/main.rs@070: addr: 3217027072, pages: 513, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3219128320, pages: 241, type: CONVENTIONAL
+[ INFO]:  src/main.rs@070: addr: 3220115456, pages: 32, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3220246528, pages: 39, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3220406272, pages: 9, type: BOOT_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3220443136, pages: 23, type: BOOT_SERVICES_CODE
+[ INFO]:  src/main.rs@070: addr: 3220537344, pages: 32, type: RUNTIME_SERVICES_DATA
+[ INFO]:  src/main.rs@070: addr: 3220668416, pages: 136, type: ACPI_NON_VOLATILE
+[ INFO]:  src/main.rs@070: addr: 4294967296, pages: 262144, type: CONVENTIONAL

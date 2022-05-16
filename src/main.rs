@@ -1,4 +1,4 @@
-#![no_main]  
+#![no_main]   
 #![no_std]
 #![feature(abi_efiapi)]
 #![feature(ptr_metadata)]
@@ -89,7 +89,7 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
         let glyph = glyph.positioned(point(0.0, 0.0));
         let (screen_x, screen_y) = (x_offset, 10);
         x_offset += (glyph.scale().x + 1.0) as u32;
-        glyph.draw(|x,y,v| {framebuffer.draw_pixel(x+screen_x+10,((y+screen_y)  as u32,v)});
+        glyph.draw(|x,y,v|{framebuffer.draw_pixel(x+screen_x+10,(y+screen_y) as u32,v)});
     }
 
 

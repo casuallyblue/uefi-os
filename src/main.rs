@@ -10,44 +10,19 @@ pub fn handle(_arg: Layout) -> ! {
 }
 
 mod allocator;
+mod framebuffer;
 
 use log::info;
-use rusttype::{Font, Scale, point};
+use rusttype::{Font, Scale, point, Glyph};
 
-use core::{arch::asm, slice::from_raw_parts_mut, alloc::Layout};
+use core::{arch::asm, alloc::Layout};
 
 
-use uefi::{prelude::*, table::boot::MemoryType, proto::{console::gop::{GraphicsOutput, PixelFormat}, loaded_image::LoadedImage}};
-
-struct EFIFrameBuffer {
-    ptr: *mut u8,
-    width: usize,
-    height: usize,
-}
-
-use allocator::{BumpAllocator, Locked};
+use uefi::{prelude::*, table::boot::MemoryType, proto::console::gop::{GraphicsOutput, PixelFormat}};
 
 #[global_allocator]
-static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
+static ALLOCATOR: allocator::Locked<allocator::BumpAllocator> = allocator::Locked::new(allocator::BumpAllocator::new());
 
-impl EFIFrameBuffer {
-    pub fn new(ptr: *mut u8, width: usize, height: usize) -> Self {
-        EFIFrameBuffer {
-            ptr, width, height
-        }
-    }
-
-    pub fn draw_pixel(&mut self, x: u32, y: u32, coverage: f32) {
-        let x = x as usize;
-        let y = y as usize;
-        let ptr = unsafe {from_raw_parts_mut(self.ptr as *mut u32, self.width * self.height) };
-        if coverage >= 0.5 {
-            ptr[(y * self.width) + x] = 0x00FF00FF;
-        } else {
-            ptr[(y * self.width) + x] = 0x00000000;
-        }
-    }
-}
 
 fn get_memory_slice<'a>(size: usize, system_table: &mut SystemTable<Boot>) -> Result<&'a mut [u8], uefi::Error> {
     let boot_services = system_table.boot_services();
@@ -90,7 +65,7 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
 
     let framebuffer_ptr = graphics_output.frame_buffer().as_mut_ptr();
     let (width, height) = mode.info().resolution();
-    let mut framebuffer = EFIFrameBuffer::new(framebuffer_ptr, width, height);
+    let mut framebuffer = framebuffer::EFIFrameBuffer::new(framebuffer_ptr, width, height);
 
 
     let (_rs, memory_map) = exit_and_get_runtime_memory_map(image_handle, system_table)?;
@@ -107,13 +82,14 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
     let font = Font::try_from_bytes(include_bytes!("font.ttf")).unwrap();
 
     let mut x_offset = 0;
+
     for c in "Hello World!".chars() {
         let glyph = font.glyph(c);
         let glyph = glyph.scaled(Scale::uniform(25.0));
         let glyph = glyph.positioned(point(0.0, 0.0));
         let (screen_x, screen_y) = (x_offset, 10);
         x_offset += (glyph.scale().x + 1.0) as u32;
-        glyph.draw(|x,y,v| {framebuffer.draw_pixel(x+screen_x,y+screen_y,v)});
+        glyph.draw(|x,y,v| {framebuffer.draw_pixel(x+screen_x+10,((y+screen_y)  as u32,v)});
     }
 
 

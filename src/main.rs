@@ -1,5 +1,5 @@
-#![no_main]   
-#![no_std]
+#![no_main]    
+#![no_std] 
 #![feature(abi_efiapi)]
 #![feature(ptr_metadata)]
 #![feature(alloc_error_handler)]
@@ -11,9 +11,12 @@ pub fn handle(_arg: Layout) -> ! {
 
 mod allocator;
 mod framebuffer;
+mod term;
+
+use term::fbterm::FBTerm;
 
 use log::info;
-use rusttype::{Font, Scale, point, Glyph};
+use rusttype::{Font, point, Rect};
 
 use core::{arch::asm, alloc::Layout};
 
@@ -65,10 +68,11 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
 
     let framebuffer_ptr = graphics_output.frame_buffer().as_mut_ptr();
     let (width, height) = mode.info().resolution();
-    let mut framebuffer = framebuffer::EFIFrameBuffer::new(framebuffer_ptr, width, height);
+    let framebuffer = framebuffer::EFIFrameBuffer::new(framebuffer_ptr, width, height);
 
 
     let (_rs, memory_map) = exit_and_get_runtime_memory_map(image_handle, system_table)?;
+
     let rest_of_mem = if let Some(mem) = memory_map.filter(|entry| {(**entry).ty == MemoryType::CONVENTIONAL && (**entry).page_count >= 128}).last() {
         mem
     } else {
@@ -81,18 +85,8 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
 
     let font = Font::try_from_bytes(include_bytes!("font.ttf")).unwrap();
 
-    let mut x_offset = 0;
-
-    for c in "Hello World!".chars() {
-        let glyph = font.glyph(c);
-        let glyph = glyph.scaled(Scale::uniform(25.0));
-        let glyph = glyph.positioned(point(0.0, 0.0));
-        let (screen_x, screen_y) = (x_offset, 10);
-        x_offset += (glyph.scale().x + 1.0) as u32;
-        let y_offset = glyph.scale().y - glyph.pixel_bounding_box().unwrap().height() as f32;
-        glyph.draw(|x,y,v|{framebuffer.draw_pixel(x+screen_x+10,(y+screen_y+ (y_offset as u32)) as u32,v)});
-    }
-
+    let mut term = FBTerm::new(framebuffer, font, Rect {min: point(0,0), max: point(width, height)});
+    term.print_at(0,0, "Hello World!");
 
     stop_cpu();
 }

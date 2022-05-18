@@ -1,4 +1,4 @@
-use core::alloc::{GlobalAlloc, Layout}; 
+use core::alloc::{GlobalAlloc, Layout};
 use core::ptr;
 
 /// A wrapper around spin::Mutex to permit trait implementations.
@@ -9,7 +9,6 @@ pub struct Locked<A> {
 fn align_up(addr: usize, align: usize) -> usize {
     (addr + align - 1) & !(align - 1)
 }
-
 
 impl<A> Locked<A> {
     pub const fn new(inner: A) -> Self {

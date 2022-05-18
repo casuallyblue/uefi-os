@@ -3,9 +3,9 @@ use rusttype::{Font, Rect, Scale, point};
 use crate::framebuffer::EFIFrameBuffer;
 
 pub struct FBTerm<'a>{
-    framebuffer: EFIFrameBuffer,
+    framebuffer: EFIFrameBuffer, 
     term_font: Font<'a>,
-    bounds: Rect<usize>,
+    _bounds: Rect<usize>,
 }
 
 impl<'a> FBTerm<'a> {
@@ -13,7 +13,7 @@ impl<'a> FBTerm<'a> {
         FBTerm {
             framebuffer,
             term_font: font,
-            bounds: size
+            _bounds: size
         }
     }
 

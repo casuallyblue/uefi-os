@@ -1,19 +1,17 @@
-use rusttype::{point, Font, Rect, Scale};
+use rusttype::{point, Font, Scale};
 
 use crate::framebuffer::EFIFrameBuffer;
 
 pub struct FBTerm<'a> {
     framebuffer: EFIFrameBuffer,
     term_font: Font<'a>,
-    _bounds: Rect<usize>,
 }
 
 impl<'a> FBTerm<'a> {
-    pub fn new(framebuffer: EFIFrameBuffer, font: Font<'a>, size: Rect<usize>) -> Self {
+    pub fn new(framebuffer: EFIFrameBuffer, font: Font<'a>) -> Self {
         FBTerm {
             framebuffer,
             term_font: font,
-            _bounds: size,
         }
     }
 

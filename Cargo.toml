@@ -13,3 +13,4 @@ rusttype = { version = "0.9.2", default-features = false, features = ["libm-math
 spin = "0.9.3"
 uefi = { version = "0.15.0", default-features=false, features = ["exts"]}
 uefi-services = {path="./vendor/uefi-services"}
+x86_64 = "0.14.9"

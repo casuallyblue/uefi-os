@@ -70,6 +70,7 @@ dependencies = [
  "spin",
  "uefi",
  "uefi-services",
+ "x86_64",
 ]
 
 [[package]]
@@ -118,6 +119,12 @@ dependencies = [
  "libm",
  "owned_ttf_parser",
 ]
+
+[[package]]
+name = "rustversion"
+version = "1.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2cc38e8fa666e2de3c4aba7edeb5ffc5246c1c2ed0e3d17e560aeeba736b23f"
 
 [[package]]
 name = "scopeguard"
@@ -197,3 +204,21 @@ name = "unicode-xid"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "957e51f3646910546462e67d5f7599b9e4fb8acdd304b087a6494730f9eebf04"
+
+[[package]]
+name = "volatile"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3ca98349dda8a60ae74e04fd90c7fb4d6a4fbe01e6d3be095478aa0b76f6c0c"
+
+[[package]]
+name = "x86_64"
+version = "0.14.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "958cd5cb28e720db2f59ee9dc4235b5f82a183d079fb0e6caf43ad074cfdc66a"
+dependencies = [
+ "bit_field",
+ "bitflags",
+ "rustversion",
+ "volatile",
+]

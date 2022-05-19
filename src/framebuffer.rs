@@ -7,26 +7,46 @@ use uefi::{
     Status,
 };
 
-pub struct EFIFrameBuffer {
-    ptr: *mut u8,
-    width: usize,
+pub struct EFIFrameBuffer<'a> {
+    ptr: &'a mut[FramebufferPixelBGR],
     height: usize,
+    width: usize,
 }
 
-impl EFIFrameBuffer {
+#[repr(packed)]
+#[allow(dead_code)]
+pub struct FramebufferPixelBGR {
+    blue: u8,
+    green: u8,
+    red: u8,
+    reserved: u8,
+}
+
+const FB_COLOR_PINK: FramebufferPixelBGR = FramebufferPixelBGR::new(0xFF, 0, 0xFF);
+
+impl FramebufferPixelBGR {
+    const fn new(red: u8, green: u8, blue: u8) -> FramebufferPixelBGR {
+        FramebufferPixelBGR {
+            reserved: 0,
+            red, green, blue
+        }
+    }
+}
+
+impl<'a> EFIFrameBuffer<'a> {
     fn new(ptr: *mut u8, width: usize, height: usize) -> Self {
-        EFIFrameBuffer { ptr, width, height }
+        let fb_ptr = unsafe{ from_raw_parts_mut(ptr as *mut FramebufferPixelBGR, width * height) };
+        EFIFrameBuffer { ptr: fb_ptr, height, width }
     }
 
-    pub fn draw_pixel(&mut self, x: u32, y: u32, coverage: f32) {
-        let x = x as usize;
-        let y = y as usize;
-        let ptr = unsafe { from_raw_parts_mut(self.ptr as *mut u32, self.width * self.height) };
-        if coverage >= 0.5 {
-            ptr[(y * self.width) + x] = 0xFFFFFF00;
+    pub fn draw_pixel(&mut self, x: usize, y: usize, coverage: f32) {
+        if x >= self.width || y >= self.height {return;}
+
+        self.ptr[(y * self.width) + x] = if coverage > 0.5 {
+             FB_COLOR_PINK
         } else {
-            ptr[(y * self.width) + x] = 0x00000000;
-        }
+            FramebufferPixelBGR::new(0, 0, 0)
+        };
     }
 
     pub fn init_efi_framebuffer(system_table: &mut SystemTable<Boot>) -> Result<Self, uefi::Error> {
@@ -39,7 +59,7 @@ impl EFIFrameBuffer {
 
         let mode = if let Some(mode) = graphics_output
             .modes()
-            .find(|mode| mode.info().pixel_format() == PixelFormat::Bgr)
+            .filter(|mode| mode.info().pixel_format() == PixelFormat::Bgr).last()
         {
             mode
         } else {
@@ -49,9 +69,8 @@ impl EFIFrameBuffer {
 
         graphics_output.set_mode(&mode)?;
 
-        let framebuffer_ptr = graphics_output.frame_buffer().as_mut_ptr();
         let (width, height) = mode.info().resolution();
 
-        Ok(Self::new(framebuffer_ptr, width, height))
+        Ok(Self::new(graphics_output.frame_buffer().as_mut_ptr(), width, height))
     }
 }

@@ -10,5 +10,6 @@ pub fn kernel_main(framebuffer: EFIFrameBuffer, memory_map: MemoryMap) {
 
     let mut term = FBTerm::new(framebuffer, font);
 
-    term.print_at(0, 0, "Hello World!");
+    term.print("Hello World!\r\n");
+    term.print("Second Line");
 }

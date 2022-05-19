@@ -23,9 +23,7 @@ fn get_memory_slice<'a>(
     Ok(unsafe { core::slice::from_raw_parts_mut(mem, size) })
 }
 
-fn get_memory_map_memory<'a>(
-    system_table: &mut SystemTable<Boot>,
-) -> Result<&'a mut [u8], uefi::Error> {
+fn get_memory_map_memory<'a>(system_table: &mut SystemTable<Boot>) -> Result<&'a mut [u8], uefi::Error> {
     let boot_services = system_table.boot_services();
 
     let memory_map_size = boot_services.memory_map_size();
@@ -54,7 +52,13 @@ pub unsafe fn init_allocator(memory_map: MemoryMap) {
     };
 
     let start = rest_of_mem.phys_start as usize;
-    let extent = 4096 * 128;
+    let extent = 4096 * rest_of_mem.page_count as usize;
 
     ALLOCATOR.lock().init(start, start + extent);
+}
+
+#[alloc_error_handler]
+//TODO: Dont do this
+pub fn handle(_arg: core::alloc::Layout) -> ! {
+    crate::stop_cpu()
 }

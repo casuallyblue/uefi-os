@@ -22,10 +22,10 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
     }
 
     if let Ok(framebuffer) = term::framebuffer::EFIFrameBuffer::init_efi_framebuffer(&mut system_table) {
-        kernel::kernel_main(
-            framebuffer,
-            memory::exit_and_get_runtime_memory_map(image_handle, system_table)?.1,
-        );
+        let memory_map  = memory::exit_and_get_runtime_memory_map(image_handle, system_table)?.1;
+
+        unsafe { crate::memory::init_allocator(memory_map) };
+        kernel::kernel_main(framebuffer);
         stop_cpu();
     }
 

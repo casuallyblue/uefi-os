@@ -26,8 +26,7 @@ lazy_static! {
             FontRef::try_from_slice(include_bytes!("term/font.ttf")).unwrap()));
 }
 
-pub fn kernel_main(framebuffer: EFIFrameBuffer<'static>, memory_map: MemoryMap) {
-    unsafe { crate::memory::init_allocator(memory_map) };
+pub fn kernel_main(framebuffer: EFIFrameBuffer<'static>) {
 
     TERM.lock().set_framebuffer(framebuffer);
 

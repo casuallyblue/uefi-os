@@ -1,15 +1,48 @@
+use core::panic::PanicInfo;
+
 use crate::memory::MemoryMap;
-use rusttype::Font;
+use lazy_static::lazy_static;
+use ab_glyph::FontRef;
+use spin::Mutex;
 
-use crate::{framebuffer::EFIFrameBuffer, term::fbterm::FBTerm};
+use crate::term::{framebuffer::EFIFrameBuffer, fbterm::FBTerm};
 
-pub fn kernel_main(framebuffer: EFIFrameBuffer, memory_map: MemoryMap) {
+macro_rules! kprint {
+    ($($arg:tt)*) => (write!(TERM.lock(), "{}", format_args!($($arg)*)));
+}
+
+macro_rules! kprintln {
+    () => {
+        (kprint!("\n"));
+    };
+    ($($arg:tt)*) => {
+        (kprint!("{}\n", format_args!($($arg)*)));
+    };
+}
+
+lazy_static! {
+    pub static ref TERM: Mutex<FBTerm<'static>> = Mutex::new(
+        FBTerm::new_unset(
+            FontRef::try_from_slice(include_bytes!("term/font.ttf")).unwrap()));
+}
+
+pub fn kernel_main(framebuffer: EFIFrameBuffer<'static>, memory_map: MemoryMap) {
     unsafe { crate::memory::init_allocator(memory_map) };
 
-    let font = Font::try_from_bytes(include_bytes!("term/font.ttf")).unwrap();
+    TERM.lock().set_framebuffer(framebuffer);
 
-    let mut term = FBTerm::new(framebuffer, font);
+    TERM.lock().set_background(crate::term::framebuffer_color::FBColor::Rgb(0x50,0x20,0x50));
+    TERM.lock().clear();
 
-    term.print("Hello World!\r\n");
-    term.print("Second Line");
+    kprintln!("=== BOOT SEQUENCE START ===");
+    kprintln!("Initialized early framebuffer terminal");
+
+    panic!("End of kernel_main");
+}
+
+#[panic_handler]
+pub fn panic_handler(panic_info: &PanicInfo) -> ! {
+    kprintln!("{}", panic_info);
+
+    crate::stop_cpu();
 }

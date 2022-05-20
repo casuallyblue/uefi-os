@@ -7,10 +7,11 @@ build = "build.rs"
 
 
 [dependencies]
-log = "0.4.17"
+ab_glyph = { version = "0.2.15", default-features = false, features = ["libm"] }
+ansi-parser = { version = "0.8.0", default-features = false }
+lazy_static = { version = "1.4.0", features = ["spin_no_std"]}
 raw-cpuid = "10.3.0"
-rusttype = { version = "0.9.2", default-features = false, features = ["libm-math"] }
 spin = "0.9.3"
 uefi = { version = "0.15.0", default-features=false, features = ["exts"]}
-uefi-services = {path="./vendor/uefi-services"}
+uefi-services = {path="./vendor/uefi-services", features = ["no_panic_handler"]}
 x86_64 = "0.14.9"

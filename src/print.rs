@@ -1,4 +1,3 @@
-
 use ab_glyph::FontRef;
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -21,8 +20,7 @@ macro_rules! kprintln {
 }
 
 lazy_static! {
-    pub static ref TERM: Mutex<FBTerm<'static>> = Mutex::new(
-        FBTerm::new_unset(
-            FontRef::try_from_slice(include_bytes!("term/font.ttf")).unwrap()));
+    pub static ref TERM: Mutex<FBTerm<'static>> = Mutex::new(FBTerm::new_unset(
+        FontRef::try_from_slice(include_bytes!("term/font.ttf")).unwrap()
+    ));
 }
-

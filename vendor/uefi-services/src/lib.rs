@@ -19,7 +19,6 @@
 #![no_std]
 #![feature(lang_items)]
 #![feature(panic_info_message)]
-#![feature(abi_efiapi)]
 
 // Core types.
 extern crate uefi;
@@ -122,5 +121,4 @@ unsafe extern "efiapi" fn exit_boot_services(_e: Event, _ctx: Option<NonNull<c_v
     if let Some(ref mut logger) = LOGGER {
         logger.disable();
     }
-
 }

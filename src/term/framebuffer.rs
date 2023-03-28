@@ -1,4 +1,4 @@
-use core::{slice::from_raw_parts_mut, fmt::Debug};
+use core::{fmt::Debug, slice::from_raw_parts_mut};
 
 use uefi::{
     proto::console::gop::{GraphicsOutput, PixelFormat},
@@ -6,10 +6,10 @@ use uefi::{
     Status,
 };
 
-use super::{framebuffer_color::FramebufferPixelBGR, fbterm::FBColor};
+use super::{fbterm::FBColor, framebuffer_color::FramebufferPixelBGR};
 
 pub struct EFIFrameBuffer<'a> {
-    pub pixels: &'a mut[FramebufferPixelBGR],
+    pub pixels: &'a mut [FramebufferPixelBGR],
     height: usize,
     width: usize,
 }
@@ -22,17 +22,29 @@ impl<'a> Debug for EFIFrameBuffer<'a> {
 
 impl<'a> EFIFrameBuffer<'a> {
     fn new(ptr: *mut u8, width: usize, height: usize) -> Self {
-        let fb_ptr = unsafe{ from_raw_parts_mut(ptr as *mut FramebufferPixelBGR, width * height) };
-        EFIFrameBuffer { pixels: fb_ptr, height, width }
+        let fb_ptr = unsafe { from_raw_parts_mut(ptr as *mut FramebufferPixelBGR, width * height) };
+        EFIFrameBuffer {
+            pixels: fb_ptr,
+            height,
+            width,
+        }
     }
 
     pub fn shift_left(&mut self, offset: usize) {
         let num_pixels = (self.height * self.width) - offset;
-        unsafe { compiler_builtins::mem::memcpy(self.pixels.as_mut_ptr() as *mut u8, (self.pixels.as_ptr() as usize + (offset * 4)) as *const u8, num_pixels * 4)};
+        unsafe {
+            compiler_builtins::mem::memcpy(
+                self.pixels.as_mut_ptr() as *mut u8,
+                (self.pixels.as_ptr() as usize + (offset * 4)) as *const u8,
+                num_pixels * 4,
+            )
+        };
     }
 
     pub fn draw_pixel(&mut self, x: usize, y: usize, color: FBColor) {
-        if x >= self.width || y >= self.height {return;}
+        if x >= self.width || y >= self.height {
+            return;
+        }
 
         self.pixels[(y * self.width) + x] = color.into();
     }
@@ -55,7 +67,9 @@ impl<'a> EFIFrameBuffer<'a> {
 
         let mode = if let Some(mode) = graphics_output
             .modes()
-            .filter(|mode| mode.info().pixel_format() == PixelFormat::Bgr).last()
+            .filter(|mode| mode.info().pixel_format() == PixelFormat::Bgr)
+            .filter(|mode| mode.info().resolution() == (1920, 1080))
+            .last()
         {
             mode
         } else {
@@ -66,6 +80,10 @@ impl<'a> EFIFrameBuffer<'a> {
 
         let (width, height) = mode.info().resolution();
 
-        Ok(Self::new(graphics_output.frame_buffer().as_mut_ptr(), width, height))
+        Ok(Self::new(
+            graphics_output.frame_buffer().as_mut_ptr(),
+            width,
+            height,
+        ))
     }
 }

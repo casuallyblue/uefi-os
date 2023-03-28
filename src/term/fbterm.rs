@@ -1,11 +1,11 @@
-use core::fmt::Arguments; 
+use core::fmt::Arguments;
 
+use ab_glyph::{point, Font, FontRef, PxScaleFont, ScaleFont};
 use alloc::fmt::format;
-use ab_glyph::{point, FontRef, Font, ScaleFont, PxScaleFont};
 
 use crate::term::framebuffer::EFIFrameBuffer;
 
-use ansi_parser::{Output, AnsiParser};
+use ansi_parser::{AnsiParser, Output};
 
 pub use super::framebuffer_color::FBColor;
 
@@ -26,7 +26,6 @@ pub struct FBTerm<'a> {
     background_color: FBColor,
 }
 
-
 impl<'a> FBTerm<'a> {
     pub fn write_fmt(&mut self, args: Arguments) {
         self.print(format(args));
@@ -41,18 +40,18 @@ impl<'a> FBTerm<'a> {
             let w = fb.get_width();
             let h = fb.get_height();
 
-            for i in 0..w*h {
-                fb.pixels[i] = self.background_color.clone().into();
+            for i in 0..w * h {
+                fb.pixels[i] = self.background_color.into();
             }
         }
     }
 
-    pub fn new_unset(font: FontRef<'a>) -> Self  {
+    pub fn new_unset(font: FontRef<'a>) -> Self {
         let scaled_font = font.into_scaled(25.0);
 
         let tc = scaled_font.glyph_id(' ');
         let character_width = scaled_font.h_advance(tc) as usize;
-        let character_height  = scaled_font.height() as usize;
+        let character_height = scaled_font.height() as usize;
 
         FBTerm {
             framebuffer: None,
@@ -67,7 +66,7 @@ impl<'a> FBTerm<'a> {
             max_row: 0,
 
             foreground_color: FBColor::Pink,
-            background_color: FBColor::Rgb(0,0,0),
+            background_color: FBColor::Rgb(0, 0, 0),
         }
     }
 
@@ -78,11 +77,14 @@ impl<'a> FBTerm<'a> {
         self.framebuffer = Some(framebuffer);
 
         self.max_column = (width - (width % self.character_width)) / self.character_width;
-        self.max_row = (height - (height % self.character_height))  / self.character_height;
+        self.max_row = (height - (height % self.character_height)) / self.character_height;
     }
 
     pub fn print_char_at(&mut self, x: usize, y: usize, c: char) {
-        let glyph = self.term_font.glyph_id(c).with_scale_and_position(25.0, point(0.0, self.term_font.ascent()));
+        let glyph = self
+            .term_font
+            .glyph_id(c)
+            .with_scale_and_position(25.0, point(0.0, self.term_font.ascent()));
         if let Some(fb) = &mut self.framebuffer {
             if let Some(glyph) = self.term_font.outline_glyph(glyph) {
                 let bounds = glyph.px_bounds();
@@ -90,13 +92,21 @@ impl<'a> FBTerm<'a> {
                 let x_offset: usize = (bounds.min.x + (x * self.character_width) as f32) as usize;
                 let y_offset: usize = (bounds.min.y + (y * self.character_height) as f32) as usize;
 
-                glyph.draw(|x,y,v| { 
-                    fb.draw_pixel(x as usize + x_offset,  y as usize + y_offset, 
-                                  if v >= 0.5 {
-                                      self.foreground_color.clone()
-                                  } else {
-                                      self.background_color.clone()
-                                  })
+                let fg = self.foreground_color;
+                let bg = self.background_color;
+
+                glyph.draw(|x, y, v| {
+                    fb.draw_pixel(
+                        x as usize + x_offset,
+                        y as usize + y_offset,
+                        if v >= 0.5 {
+                            fg
+                        } else if v == 0.0 {
+                            bg
+                        } else {
+                            fg * v
+                        },
+                    )
                 });
             }
         }
@@ -129,7 +139,7 @@ impl<'a> FBTerm<'a> {
 
             fb.shift_left(line_offset);
 
-            for pixel in end_pixel..end_pixel+line_offset {
+            for pixel in end_pixel..end_pixel + line_offset {
                 fb.pixels[pixel] = self.background_color.clone().into();
             }
             self.current_row -= 1;
@@ -141,11 +151,11 @@ impl<'a> FBTerm<'a> {
             '\n' => {
                 self.current_row += 1;
                 self.current_column = 0;
-            },
-            _ => { 
+            }
+            _ => {
                 self.current_column += 1;
             }
-        } 
+        }
 
         if self.current_column >= self.max_column {
             self.current_row += 1;
@@ -155,6 +165,5 @@ impl<'a> FBTerm<'a> {
         if self.current_row >= self.max_row {
             self.scroll_screen();
         }
-
     }
 }

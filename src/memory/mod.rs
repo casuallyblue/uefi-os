@@ -23,7 +23,9 @@ fn get_memory_slice<'a>(
     Ok(unsafe { core::slice::from_raw_parts_mut(mem, size) })
 }
 
-fn get_memory_map_memory<'a>(system_table: &mut SystemTable<Boot>) -> Result<&'a mut [u8], uefi::Error> {
+fn get_memory_map_memory<'a>(
+    system_table: &mut SystemTable<Boot>,
+) -> Result<&'a mut [u8], uefi::Error> {
     let boot_services = system_table.boot_services();
 
     let memory_map_size = boot_services.memory_map_size();
@@ -43,7 +45,7 @@ pub fn exit_and_get_runtime_memory_map<'a>(
 
 pub unsafe fn init_allocator(memory_map: MemoryMap) {
     let rest_of_mem = if let Some(mem) = memory_map
-        .filter(|entry| (**entry).ty == MemoryType::CONVENTIONAL && (**entry).page_count >= 128)
+        .filter(|entry| entry.ty == MemoryType::CONVENTIONAL && entry.page_count >= 128)
         .last()
     {
         mem

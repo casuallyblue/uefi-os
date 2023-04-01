@@ -41,12 +41,12 @@ impl<'a> EFIFrameBuffer<'a> {
         };
     }
 
-    pub fn draw_pixel(&mut self, x: usize, y: usize, color: FBColor) {
+    pub fn draw_pixel(&mut self, x: usize, y: usize, color: &FramebufferPixelBGR) {
         if x >= self.width || y >= self.height {
             return;
         }
 
-        self.pixels[(y * self.width) + x] = color.into();
+        self.pixels[(y * self.width) + x] = color.clone();
     }
 
     pub fn get_width(&self) -> usize {

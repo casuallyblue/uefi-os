@@ -10,9 +10,11 @@ use core::panic::PanicInfo;
 extern crate alloc;
 extern crate compiler_builtins;
 
+pub mod frame_allocator;
 pub mod interrupts;
 pub mod kernel;
 pub mod memory;
+pub mod paging;
 pub mod term;
 
 #[macro_use]

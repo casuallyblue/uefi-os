@@ -2,7 +2,7 @@ use core::ops::Mul;
 
 #[repr(packed)]
 #[allow(dead_code)]
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct FramebufferPixelBGR {
     blue: u8,
     green: u8,

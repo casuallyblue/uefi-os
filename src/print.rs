@@ -11,12 +11,7 @@ macro_rules! kprint {
 
 #[macro_export]
 macro_rules! kprintln {
-    () => {
-        (kprint!("\n"));
-    };
-    ($($arg:tt)*) => {
-        (kprint!("{}\n", format_args!($($arg)*)));
-    };
+    ($($arg:tt)*) => (write!(TERM.lock(), "{}\n", format_args!($($arg)*)));
 }
 
 lazy_static! {

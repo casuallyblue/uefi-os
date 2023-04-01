@@ -1,59 +1,64 @@
 use uefi::table::boot::MemoryType;
-use x86_64::instructions::interrupts::int3;
-use x86_64::registers::control::Cr3;
 
-use crate::term::framebuffer_color::FBColor;
-use crate::{interrupts, kprint, kprintln};
+use crate::frame_allocator::BootInfoFrameAllocator;
+use crate::kprintln;
 
+use crate::paging::create_page_table;
 use crate::{print::*, KernelDataInfo};
 
 pub fn kernel_main(kernel_data: KernelDataInfo<'static>) {
     TERM.lock().set_framebuffer(kernel_data.framebuffer);
-
-    TERM.lock().set_background(FBColor::Rgb(0, 0, 0));
     TERM.lock().clear();
 
     kprintln!("=== BOOT SEQUENCE START ===");
     kprintln!("Initialized early framebuffer terminal");
 
-    kprintln!("Looking over memory map:");
+    let mut frame_allocator =
+        unsafe { BootInfoFrameAllocator::new(kernel_data.memory_map.clone()) };
 
-    for mem in kernel_data.memory_map.clone().filter(|m| {
-        m.ty != MemoryType::BOOT_SERVICES_DATA && m.ty != MemoryType::BOOT_SERVICES_CODE
-    }) {
+    kprintln!("creating page table");
+    let _page_table = create_page_table(&mut frame_allocator).unwrap();
+    kprintln!("page table created");
+
+    let mut etr = None;
+    let mut fbs = 0;
+
+    for entry in kernel_data
+        .memory_map
+        .clone()
+        .filter(|e| e.ty == MemoryType::ACPI_NON_VOLATILE)
+    {
         kprintln!(
-            "type: {:?}, phys_start: {:#x}, virt_start: {:#x}, pages: {}, attrs: {:?}",
-            mem.ty,
-            mem.phys_start,
-            mem.virt_start,
-            mem.page_count,
-            mem.att
+            "memory found with type {:?} and start {:#x} with {} pages",
+            entry.ty,
+            entry.phys_start,
+            entry.page_count
         );
     }
 
-    let boot_services_pages = kernel_data
-        .memory_map
-        .clone()
-        .filter(|m| {
-            m.ty == MemoryType::BOOT_SERVICES_CODE || m.ty == MemoryType::BOOT_SERVICES_DATA
-        })
-        .fold(0, |n, mem| n + mem.page_count);
+    match &TERM.lock().framebuffer {
+        Some(framebuffer) => {
+            let ptr = framebuffer.pixels.as_ptr() as *mut u8;
 
-    kprintln!("Number of boot services pages: {}", boot_services_pages);
-
-    interrupts::init_idt();
-
-    let cr3flags = Cr3::read();
-    let addr = cr3flags.0.start_address().as_u64();
-
-    for mem in kernel_data
-        .memory_map
-        .filter(|m| m.phys_start <= addr && m.phys_start + (4096 * m.page_count) >= addr)
-    {
-        kprintln!("{:#x?}", mem);
+            for entry in kernel_data.memory_map.filter(|e| {
+                e.phys_start <= ptr as u64 && (e.phys_start + (4096 * e.page_count)) >= ptr as u64
+            }) {
+                etr = Some(entry);
+                fbs = ptr as u64;
+            }
+        }
+        _ => {}
     }
 
-    kprintln!("{:?}", cr3flags);
+    kprintln!("1920x1080 = {}", 1920 * 1080);
+    kprintln!("framebuffer starts at {:#x}", fbs);
+
+    kprintln!(
+        "framebuffer descriptor at {:#x}, extent {} pixels, type {:?}",
+        etr.unwrap().phys_start,
+        (etr.unwrap().page_count * 4096) / 4,
+        etr.unwrap().ty
+    );
 
     panic!("End of kernel_main");
 }

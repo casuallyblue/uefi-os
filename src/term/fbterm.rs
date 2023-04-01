@@ -11,7 +11,7 @@ pub use super::framebuffer_color::FBColor;
 
 #[derive(Debug)]
 pub struct FBTerm<'a> {
-    framebuffer: Option<EFIFrameBuffer<'a>>,
+    pub framebuffer: Option<EFIFrameBuffer<'a>>,
     term_font: PxScaleFont<FontRef<'a>>,
     current_column: usize,
     current_row: usize,
@@ -25,6 +25,8 @@ pub struct FBTerm<'a> {
     foreground_color: FBColor,
     background_color: FBColor,
 }
+
+const SCALE: f32 = 20.0;
 
 impl<'a> FBTerm<'a> {
     pub fn write_fmt(&mut self, args: Arguments) {
@@ -47,7 +49,7 @@ impl<'a> FBTerm<'a> {
     }
 
     pub fn new_unset(font: FontRef<'a>) -> Self {
-        let scaled_font = font.into_scaled(25.0);
+        let scaled_font = font.into_scaled(SCALE);
 
         let tc = scaled_font.glyph_id(' ');
         let character_width = scaled_font.h_advance(tc) as usize;
@@ -84,7 +86,7 @@ impl<'a> FBTerm<'a> {
         let glyph = self
             .term_font
             .glyph_id(c)
-            .with_scale_and_position(25.0, point(0.0, self.term_font.ascent()));
+            .with_scale_and_position(SCALE, point(0.0, self.term_font.ascent()));
         if let Some(fb) = &mut self.framebuffer {
             if let Some(glyph) = self.term_font.outline_glyph(glyph) {
                 let bounds = glyph.px_bounds();
@@ -92,20 +94,15 @@ impl<'a> FBTerm<'a> {
                 let x_offset: usize = (bounds.min.x + (x * self.character_width) as f32) as usize;
                 let y_offset: usize = (bounds.min.y + (y * self.character_height) as f32) as usize;
 
-                let fg = self.foreground_color;
-                let bg = self.background_color;
+                let fg = self.foreground_color.into();
+                let bg = self.background_color.into();
 
                 glyph.draw(|x, y, v| {
+                    let v = (v * 255.0) as u8;
                     fb.draw_pixel(
                         x as usize + x_offset,
                         y as usize + y_offset,
-                        if v >= 0.5 {
-                            fg
-                        } else if v == 0.0 {
-                            bg
-                        } else {
-                            fg * v
-                        },
+                        if v >= 128 { &fg } else { &bg },
                     )
                 });
             }

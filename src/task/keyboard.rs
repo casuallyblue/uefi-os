@@ -16,8 +16,6 @@ static SCANCODE_QUEUE: OnceCell<ArrayQueue<u8>> = OnceCell::uninit();
 
 static WAKER: AtomicWaker = AtomicWaker::new();
 
-
-
 pub struct ScancodeStream {
     _private: (),
 }
@@ -50,6 +48,16 @@ impl Stream for ScancodeStream {
             }
             None => Poll::Pending,
         }
+    }
+}
+
+pub(crate) fn add_scancode(scancode: u8) {
+    if let Ok(queue) = SCANCODE_QUEUE.try_get() {
+        if let Err(_) = queue.push(scancode) {
+            kprintln!("WARNING: scancode queue full; dropping keyboard input");
+        }
+    } else {
+        kprintln!("WARNING: scancode queue uninitialized");
     }
 }
 

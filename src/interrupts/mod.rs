@@ -1,5 +1,6 @@
 use lazy_static::lazy_static;
 use pics::{load_pics, PICS};
+use uefi::table::cfg::MemoryProtectionAttribute;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
 use crate::{kprint, kprintln, TERM};
@@ -19,6 +20,7 @@ lazy_static! {
         idt.breakpoint.set_handler_fn(breakpoint_handler);
         idt.page_fault.set_handler_fn(page_fault_handler);
         idt[InterruptIndex::Timer as usize].set_handler_fn(timer_handler);
+        idt[InterruptIndex::Keyboard as usize].set_handler_fn(keyboard_handler);
         idt
     };
 }
@@ -51,5 +53,21 @@ extern "x86-interrupt" fn timer_handler(_stack_frame: InterruptStackFrame) {
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer as u8);
+    }
+}
+
+extern "x86-interrupt" fn keyboard_handler(_stack_frame: InterruptStackFrame) {
+    use x86_64::instructions::port::Port;
+    x86_64::instructions::interrupts::disable();
+
+    let mut port = Port::new(0x60);
+    let scancode: u8 = unsafe { port.read() };
+    crate::task::keyboard::add_scancode(scancode);
+
+    x86_64::instructions::interrupts::enable();
+
+    unsafe {
+        PICS.lock()
+            .notify_end_of_interrupt(InterruptIndex::Keyboard as u8);
     }
 }

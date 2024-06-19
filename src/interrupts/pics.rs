@@ -11,6 +11,6 @@ pub static PICS: Mutex<ChainedPics> =
 
 pub fn load_pics() {
     unsafe { PICS.lock().initialize() };
-    unsafe { PICS.lock().write_masks(0b11111110, 0xFF) };
+    unsafe { PICS.lock().write_masks(0b11111100, 0xFF) };
     x86_64::instructions::interrupts::enable();
 }

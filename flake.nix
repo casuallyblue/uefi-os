@@ -73,6 +73,12 @@
             [
               cargo
               fenix.packages.${system}.complete.toolchain
+	      qemu
+	      (pkgs.writeShellScriptBin "qemu-system-x86_64-uefi" ''
+        	qemu-system-x86_64 \
+		-drive if=pflash,format=raw,unit=0,file=${pkgs.qemu}/share/qemu/edk2-x86_64-code.fd,readonly=on \
+          	"$@"
+          	'')
             ] ++ lib.optionals pkgs.stdenv.isDarwin (with darwin.apple_sdk; [
               frameworks.SystemConfiguration
             ]));

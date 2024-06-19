@@ -1,9 +1,8 @@
 use lazy_static::lazy_static;
 use pics::{load_pics, PICS};
-use uefi::table::cfg::MemoryProtectionAttribute;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
-use crate::{kprint, kprintln, TERM};
+use crate::kprintln;
 
 pub mod pics;
 

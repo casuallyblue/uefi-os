@@ -143,11 +143,31 @@ impl<'a> FBTerm<'a> {
         }
     }
 
+    fn clear_char(&mut self) {
+        for x in 0..self.character_width {
+            for y in 0..self.character_height {
+                if let Some(fb) = &mut self.framebuffer {
+                    fb.draw_pixel(
+                        self.current_column * self.character_width + x,
+                        self.current_row * self.character_height + y,
+                        &self.background_color.into(),
+                    );
+                }
+            }
+        }
+    }
+
     fn update_location(&mut self, character: char) {
         match character {
             '\n' => {
                 self.current_row += 1;
                 self.current_column = 0;
+            }
+            '\x08' => {
+                if self.current_column > 0 {
+                    self.current_column -= 1;
+                    self.clear_char();
+                }
             }
             _ => {
                 self.current_column += 1;

@@ -21,7 +21,6 @@ pub mod term;
 #[macro_use]
 pub mod print;
 
-use print::*;
 use term::framebuffer::EFIFrameBuffer;
 use uefi::table::boot::MemoryMap;
 

@@ -3,7 +3,7 @@ use core::{
     task::{Context, Poll},
 };
 
-use crate::{kprint, TERM};
+use crate::kprint;
 
 use conquer_once::spin::OnceCell;
 use crossbeam_queue::ArrayQueue;
@@ -74,7 +74,7 @@ pub async fn print_keypresses() {
             if let Some(key) = keyboard.process_keyevent(key_event) {
                 match key {
                     DecodedKey::Unicode(ch) => kprint!("{}", ch),
-                    DecodedKey::RawKey(key) => kprint!("{:?}", key),
+                    DecodedKey::RawKey(_) => {}
                 }
             }
         }

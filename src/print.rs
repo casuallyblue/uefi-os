@@ -7,14 +7,14 @@ use crate::term::fbterm::FBTerm;
 #[macro_export]
 macro_rules! kprint {
     ($($arg:tt)*) => ({
-        write!(TERM.lock(), "{}", format_args!($($arg)*));
+        write!(crate::print::TERM.lock(), "{}", format_args!($($arg)*));
     });
 }
 
 #[macro_export]
 macro_rules! kprintln {
-    () => (write!(TERM.lock(), "\n"));
-    ($($arg:tt)*) => (write!(TERM.lock(), "{}\n", format_args!($($arg)*)));
+    () => (write!(crate::print::TERM.lock(), "\n"));
+    ($($arg:tt)*) => (write!(crate::print::TERM.lock(), "{}\n", format_args!($($arg)*)));
 }
 
 lazy_static! {

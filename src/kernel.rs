@@ -17,9 +17,6 @@ pub fn kernel_main(kernel_data: KernelData<'static>) {
     init_idt();
 
     kprintln!("Initialized Interrupts");
-
-    kprintln!("Beginning async runtime");
-
     kprintln!();
 
     let mut executor = BasicExecutor::new();

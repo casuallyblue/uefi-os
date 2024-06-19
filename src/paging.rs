@@ -1,45 +1,21 @@
-use x86_64::structures::paging::{
-    page_table::PageTableEntry, FrameAllocator, PageTable, PageTableFlags, PhysFrame,
+use x86_64::{
+    structures::paging::{OffsetPageTable, PageTable},
+    VirtAddr,
 };
 
-use crate::frame_allocator::BootInfoFrameAllocator;
+pub unsafe fn active_level_4_table() -> &'static mut PageTable {
+    use x86_64::registers::control::Cr3;
 
-fn create_page_table_frame(
-    frame_allocator: &mut BootInfoFrameAllocator,
-) -> Option<(PhysFrame, &mut PageTable)> {
-    let frame = frame_allocator.allocate_frame()?;
+    let (level_4_table_frame, _) = Cr3::read();
 
-    let pt: *mut PageTable = frame.start_address().as_u64() as *mut PageTable;
+    let phys = level_4_table_frame.start_address();
+    let virt = VirtAddr::new(0) + phys.as_u64();
+    let page_table_ptr: *mut PageTable = virt.as_mut_ptr();
 
-    let table: &mut PageTable = unsafe { &mut *pt };
-
-    Some((frame, table))
+    &mut *page_table_ptr // unsafe
 }
 
-pub fn create_page_table(frame_allocator: &mut BootInfoFrameAllocator) -> Option<PhysFrame> {
-    let (frame, table) = create_page_table_frame(frame_allocator)?;
-
-    for (_, entry) in table.iter_mut().enumerate() {
-        entry.set_unused();
-    }
-
-    Some(frame)
-}
-
-pub fn create_4_level_page_table(
-    frame_allocator: &mut BootInfoFrameAllocator,
-) -> Option<PhysFrame> {
-    let (lvl4_frame, lvl4_table) = create_page_table_frame(frame_allocator)?;
-
-    for entry in lvl4_table.iter_mut() {
-        entry.set_unused();
-    }
-
-    lvl4_table[511] = PageTableEntry::new();
-    lvl4_table[511].set_addr(
-        lvl4_frame.start_address(),
-        PageTableFlags::PRESENT & PageTableFlags::WRITABLE,
-    );
-
-    Some(lvl4_frame)
+pub unsafe fn init() -> OffsetPageTable<'static> {
+    let l4_table = active_level_4_table();
+    OffsetPageTable::new(l4_table, VirtAddr::new(0))
 }

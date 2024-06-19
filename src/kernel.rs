@@ -14,6 +14,8 @@ pub fn kernel_main(kernel_data: KernelData<'static>) {
     kprintln!("=== BOOT SEQUENCE START ===");
     kprintln!("Initialized early framebuffer terminal");
 
+    let mut _page_table = unsafe { crate::paging::init() };
+
     init_idt();
 
     kprintln!("Initialized Interrupts");

@@ -169,6 +169,9 @@ impl<'a> FBTerm<'a> {
                     self.clear_char();
                 }
             }
+            '\t' => {
+                self.current_column += 4;
+            }
             '\x08' => {
                 if self.current_column > 0 {
                     self.current_column -= 1;

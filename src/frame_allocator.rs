@@ -1,20 +1,18 @@
 use alloc::boxed::Box;
-use uefi::table::boot::MemoryType;
+use uefi::table::boot::{MemoryMap, MemoryType};
 use x86_64::{
     structures::paging::{FrameAllocator, PhysFrame, Size4KiB},
     PhysAddr,
 };
 
-use crate::memory::MemoryMap;
-
 pub struct BootInfoFrameAllocator {
-    frames: Box<dyn Iterator<Item = PhysFrame>>,
+    frames: Box<dyn Iterator<Item = PhysFrame> + 'static>,
 }
 
 impl BootInfoFrameAllocator {
-    pub unsafe fn new(regions: MemoryMap<'static>) -> Self {
+    pub unsafe fn new(regions: &'static MemoryMap<'static>) -> Self {
         BootInfoFrameAllocator {
-            frames: Box::new(iter_usable_memory(regions)),
+            frames: Box::new(iter_usable_memory(&regions)),
         }
     }
 }
@@ -25,10 +23,10 @@ unsafe impl FrameAllocator<Size4KiB> for BootInfoFrameAllocator {
     }
 }
 
-pub fn iter_usable_memory(
-    regions: MemoryMap<'static>,
-) -> impl Iterator<Item = PhysFrame> + 'static {
-    let usable_regions = regions.clone().filter(|r| {
+pub fn iter_usable_memory<'a>(
+    regions: &'a MemoryMap<'a>,
+) -> impl Iterator<Item = PhysFrame<Size4KiB>> + 'a {
+    let usable_regions = regions.entries().filter(|r| {
         r.phys_start != 0
             && (r.ty == MemoryType::CONVENTIONAL
                 || r.ty == MemoryType::BOOT_SERVICES_CODE
@@ -39,5 +37,4 @@ pub fn iter_usable_memory(
 
     let frame_addresses = addr_ranges.flat_map(|r| r.step_by(4096));
 
-    frame_addresses.map(|addr| PhysFrame::containing_address(PhysAddr::new(addr)))
-}
+    frame_addresses.map(|addr| PhysFrame::<Size4KiB>::containing_address(PhysAddr::new(addr)))}

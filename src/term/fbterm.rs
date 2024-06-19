@@ -102,7 +102,7 @@ impl<'a> FBTerm<'a> {
                     fb.draw_pixel(
                         x as usize + x_offset,
                         y as usize + y_offset,
-                        if v >= 128 { &fg } else { &bg },
+                        if v >= 120 { &fg } else { &bg },
                     )
                 });
             }

@@ -6,32 +6,32 @@
 #![feature(type_alias_impl_trait)]
 
 extern crate alloc;
-extern crate compiler_builtins;
 
 use op_sys::{
-    kernel::kernel_main,
-    memory::{exit_and_get_runtime_memory_map, init_allocator},
-    stop_cpu,
-    term::framebuffer::EFIFrameBuffer,
-    KernelDataInfo,
+    kernel::kernel_main, memory::init_allocator, stop_cpu, term::framebuffer::EFIFrameBuffer,
+    KernelData,
 };
-use uefi::prelude::*;
+use uefi::{prelude::*, table::boot::MemoryType};
 
 #[entry]
 fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
-    if uefi_services::init(&mut system_table).is_err() {
+    if uefi::helpers::init(&mut system_table).is_err() {
         return Status::ABORTED;
     }
 
     if let Ok(framebuffer) = EFIFrameBuffer::init_efi_framebuffer(&mut system_table) {
-        let memory_map = exit_and_get_runtime_memory_map(image_handle, system_table)?.1;
+        let memory_map = system_table
+            .exit_boot_services(MemoryType::RUNTIME_SERVICES_DATA)
+            .1;
+        unsafe { init_allocator(&memory_map) };
 
-        unsafe { init_allocator(memory_map.clone()) };
-
-        kernel_main(KernelDataInfo {
-            memory_map,
+        let kernel_data = KernelData {
             framebuffer,
-        });
+            memory_map,
+        };
+
+        kernel_main(kernel_data);
+
         stop_cpu();
     }
 

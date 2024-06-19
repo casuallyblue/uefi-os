@@ -15,18 +15,19 @@ pub mod interrupts;
 pub mod kernel;
 pub mod memory;
 pub mod paging;
+pub mod task;
 pub mod term;
 
 #[macro_use]
 pub mod print;
 
-use memory::MemoryMap;
 use print::*;
 use term::framebuffer::EFIFrameBuffer;
+use uefi::table::boot::MemoryMap;
 
-pub struct KernelDataInfo<'a> {
-    pub memory_map: MemoryMap<'a>,
+pub struct KernelData<'a> {
     pub framebuffer: EFIFrameBuffer<'a>,
+    pub memory_map: MemoryMap<'a>,
 }
 
 pub fn stop_cpu() -> ! {

@@ -1,12 +1,10 @@
 use core::{fmt::Debug, slice::from_raw_parts_mut};
 
 use uefi::{
-    proto::console::gop::{GraphicsOutput, PixelFormat},
-    table::{Boot, SystemTable},
-    Status,
+    proto::console::gop::{GraphicsOutput, PixelFormat}, table::{boot::SearchType, Boot, SystemTable}, Identify, Status
 };
 
-use super::{fbterm::FBColor, framebuffer_color::FramebufferPixelBGR};
+use super::framebuffer_color::FramebufferPixelBGR;
 
 pub struct EFIFrameBuffer<'a> {
     pub pixels: &'a mut [FramebufferPixelBGR],
@@ -58,17 +56,19 @@ impl<'a> EFIFrameBuffer<'a> {
     }
 
     pub fn init_efi_framebuffer(system_table: &mut SystemTable<Boot>) -> Result<Self, uefi::Error> {
-        let graphics_output = unsafe {
-            &mut *system_table
-                .boot_services()
-                .locate_protocol::<GraphicsOutput>()?
-                .get()
-        };
+        let graphics_output_handle = *system_table
+            .boot_services()
+            .locate_handle_buffer(SearchType::ByProtocol(&GraphicsOutput::GUID))?
+            .first().unwrap();
+
+        let graphics_output = &mut *system_table
+            .boot_services()
+            .open_protocol_exclusive::<GraphicsOutput>(graphics_output_handle)?;
 
         let mode = if let Some(mode) = graphics_output
-            .modes()
+            .modes(system_table.boot_services())
             .filter(|mode| mode.info().pixel_format() == PixelFormat::Bgr)
-            .filter(|mode| mode.info().resolution() == (1920, 1080))
+            .filter(|mode| mode.info().resolution() == (1024, 768))
             .last()
         {
             mode

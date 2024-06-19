@@ -6,12 +6,16 @@ use crate::term::fbterm::FBTerm;
 
 #[macro_export]
 macro_rules! kprint {
-    ($($arg:tt)*) => (write!(TERM.lock(), "{}", format_args!($($arg)*)));
+    ($($arg:tt)*) => ({
+        write!(TERM.lock(), "{}", format_args!($($arg)*));
+    });
 }
 
 #[macro_export]
 macro_rules! kprintln {
-    ($($arg:tt)*) => (write!(TERM.lock(), "{}\n", format_args!($($arg)*)));
+    ($($arg:tt)*) => ({
+        write!(TERM.lock(), "{}\n", format_args!($($arg)*));
+    });
 }
 
 lazy_static! {

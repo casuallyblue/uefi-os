@@ -3,6 +3,7 @@ use crate::kprintln;
 
 use crate::print::*;
 use crate::task::basic_executor::BasicExecutor;
+use crate::task::keyboard;
 use crate::task::Task;
 use crate::KernelData;
 
@@ -19,13 +20,11 @@ pub fn kernel_main(kernel_data: KernelData<'static>) {
 
     kprintln!("Beginning async runtime");
 
+    kprintln!();
+
     let mut executor = BasicExecutor::new();
-    executor.spawn(Task::new(kernel_async_main()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
     executor.run();
 
     panic!("End of kernel_main");
-}
-
-pub async fn kernel_async_main() {
-    loop {}
 }

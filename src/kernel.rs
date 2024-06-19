@@ -2,6 +2,8 @@ use crate::interrupts::init_idt;
 use crate::kprintln;
 
 use crate::print::*;
+use crate::task::basic_executor::BasicExecutor;
+use crate::task::Task;
 use crate::KernelData;
 
 pub fn kernel_main(kernel_data: KernelData<'static>) {
@@ -13,7 +15,17 @@ pub fn kernel_main(kernel_data: KernelData<'static>) {
 
     init_idt();
 
-    loop {}
+    kprintln!("Initialized Interrupts");
+
+    kprintln!("Beginning async runtime");
+
+    let mut executor = BasicExecutor::new();
+    executor.spawn(Task::new(kernel_async_main()));
+    executor.run();
 
     panic!("End of kernel_main");
+}
+
+pub async fn kernel_async_main() {
+    loop {}
 }

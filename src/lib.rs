@@ -38,6 +38,7 @@ pub fn stop_cpu() -> ! {
 
 #[panic_handler]
 pub fn panic_handler(panic_info: &PanicInfo) -> ! {
+    x86_64::instructions::interrupts::disable();
     kprintln!("{}", panic_info);
 
     crate::stop_cpu();

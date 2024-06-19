@@ -47,9 +47,6 @@ extern "x86-interrupt" fn page_fault_handler(
 }
 
 extern "x86-interrupt" fn timer_handler(_stack_frame: InterruptStackFrame) {
-    x86_64::instructions::interrupts::disable();
-    kprint!(".");
-    x86_64::instructions::interrupts::enable();
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer as u8);

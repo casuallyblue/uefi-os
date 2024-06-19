@@ -20,14 +20,15 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
     }
 
     if let Ok(framebuffer) = EFIFrameBuffer::init_efi_framebuffer(&mut system_table) {
-        let memory_map = system_table
-            .exit_boot_services(MemoryType::RUNTIME_SERVICES_DATA)
-            .1;
+        let (system_table, memory_map) =
+            system_table.exit_boot_services(MemoryType::RUNTIME_SERVICES_DATA);
+
         unsafe { init_allocator(&memory_map) };
 
         let kernel_data = KernelData {
             framebuffer,
             memory_map,
+            system_table,
         };
 
         kernel_main(kernel_data);

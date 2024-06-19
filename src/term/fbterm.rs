@@ -163,6 +163,12 @@ impl<'a> FBTerm<'a> {
                 self.current_row += 1;
                 self.current_column = 0;
             }
+            '\r' => {
+                while self.current_column > 0 {
+                    self.current_column -= 1;
+                    self.clear_char();
+                }
+            }
             '\x08' => {
                 if self.current_column > 0 {
                     self.current_column -= 1;

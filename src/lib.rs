@@ -22,11 +22,12 @@ pub mod term;
 pub mod print;
 
 use term::framebuffer::EFIFrameBuffer;
-use uefi::table::boot::MemoryMap;
+use uefi::table::{boot::MemoryMap, Runtime, SystemTable};
 
 pub struct KernelData<'a> {
     pub framebuffer: EFIFrameBuffer<'a>,
     pub memory_map: MemoryMap<'a>,
+    pub system_table: SystemTable<Runtime>,
 }
 
 pub fn stop_cpu() -> ! {

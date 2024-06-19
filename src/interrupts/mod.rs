@@ -1,5 +1,6 @@
 use lazy_static::lazy_static;
 use pics::{load_pics, PICS};
+use spin::Mutex;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
 use crate::kprintln;
@@ -54,16 +55,35 @@ extern "x86-interrupt" fn timer_handler(_stack_frame: InterruptStackFrame) {
 
 extern "x86-interrupt" fn keyboard_handler(_stack_frame: InterruptStackFrame) {
     use x86_64::instructions::port::Port;
-    x86_64::instructions::interrupts::disable();
 
-    let mut port = Port::new(0x60);
-    let scancode: u8 = unsafe { port.read() };
-    crate::task::keyboard::add_scancode(scancode);
-
-    x86_64::instructions::interrupts::enable();
+    with_interrupts_disabled(|| {
+        let mut port = Port::new(0x60);
+        let scancode: u8 = unsafe { port.read() };
+        crate::task::keyboard::add_scancode(scancode);
+    });
 
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Keyboard as u8);
     }
+}
+
+static INTERRUPTS_ARE_DISABLED: Mutex<bool> = Mutex::new(false);
+
+fn with_interrupts_disabled<T>(f: impl Fn() -> T) -> T {
+    let were_disabled = *INTERRUPTS_ARE_DISABLED.lock();
+
+    if !were_disabled {
+        x86_64::instructions::interrupts::disable();
+        *INTERRUPTS_ARE_DISABLED.lock() = true;
+    }
+
+    let val = f();
+
+    if !were_disabled {
+        *INTERRUPTS_ARE_DISABLED.lock() = false;
+        x86_64::instructions::interrupts::enable();
+    }
+
+    val
 }

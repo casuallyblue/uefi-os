@@ -5,7 +5,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(abi_x86_interrupt)]
 
-use core::panic::PanicInfo;
+use core::{ffi::c_void, panic::PanicInfo};
 
 extern crate alloc;
 extern crate compiler_builtins;
@@ -28,6 +28,7 @@ pub struct KernelData<'a> {
     pub framebuffer: EFIFrameBuffer<'a>,
     pub memory_map: MemoryMap<'a>,
     pub system_table: SystemTable<Runtime>,
+    pub rsdt_ptr: *const c_void,
 }
 
 pub fn stop_cpu() -> ! {

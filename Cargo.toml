@@ -12,6 +12,7 @@ bench = false
 
 [dependencies]
 ab_glyph = { version = "0.2.15", default-features = false, features = ["libm"] }
+acpi = "5.0.0"
 ansi-parser = { version = "0.8.0", default-features = false }
 conquer-once = { version = "0.4.0", default-features = false }
 crossbeam-queue = { version = "0.3.11", default-features = false, features = ["alloc"] }

@@ -23,6 +23,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "acpi"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e248409195304021f61b39ba2628f62a45a3abf6119669d44b3399d60eabe4c3"
+dependencies = [
+ "bit_field",
+ "log",
+]
+
+[[package]]
 name = "ansi-parser"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -229,6 +239,7 @@ name = "op_sys"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "acpi",
  "ansi-parser",
  "conquer-once",
  "crossbeam-queue",

@@ -5,19 +5,19 @@ use x86_64::{
     PhysAddr,
 };
 
-pub struct BootInfoFrameAllocator {
-    frames: Box<dyn Iterator<Item = PhysFrame> + 'static>,
+pub struct BootInfoFrameAllocator<'a> {
+    frames: Box<dyn Iterator<Item = PhysFrame> + 'a>,
 }
 
-impl BootInfoFrameAllocator {
-    pub unsafe fn new(regions: &'static MemoryMap<'static>) -> Self {
+impl<'a> BootInfoFrameAllocator<'a> {
+    pub unsafe fn new(regions: &'a MemoryMap<'a>) -> Self {
         BootInfoFrameAllocator {
             frames: Box::new(iter_usable_memory(&regions)),
         }
     }
 }
 
-unsafe impl FrameAllocator<Size4KiB> for BootInfoFrameAllocator {
+unsafe impl<'a> FrameAllocator<Size4KiB> for BootInfoFrameAllocator<'a> {
     fn allocate_frame(&mut self) -> Option<PhysFrame> {
         self.frames.next()
     }
@@ -37,4 +37,5 @@ pub fn iter_usable_memory<'a>(
 
     let frame_addresses = addr_ranges.flat_map(|r| r.step_by(4096));
 
-    frame_addresses.map(|addr| PhysFrame::<Size4KiB>::containing_address(PhysAddr::new(addr)))}
+    frame_addresses.map(|addr| PhysFrame::<Size4KiB>::containing_address(PhysAddr::new(addr)))
+}

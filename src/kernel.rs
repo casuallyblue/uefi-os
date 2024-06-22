@@ -5,8 +5,7 @@ use alloc::vec;
 use uefi::table::boot::MemoryMap;
 use uefi::table::Runtime;
 use uefi::table::SystemTable;
-use x86_64::structures::paging::page_table;
-use x86_64::structures::paging::FrameAllocator;
+
 use x86_64::structures::paging::OffsetPageTable;
 
 use crate::frame_allocator::BootInfoFrameAllocator;

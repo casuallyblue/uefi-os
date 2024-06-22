@@ -1,4 +1,4 @@
-use core::{ffi::c_void, ops::Range};
+use core::ops::Range;
 
 use alloc::{boxed::Box, vec::Vec};
 use uefi::table::boot::{MemoryMap, MemoryType};

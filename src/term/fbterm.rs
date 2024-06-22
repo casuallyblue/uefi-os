@@ -98,11 +98,11 @@ impl<'a> FBTerm<'a> {
                 let bg = self.background_color.into();
 
                 glyph.draw(|x, y, v| {
-                    let v = (v * 255.0) as u8;
+                    let v = (v * 256.0) as u8;
                     fb.draw_pixel(
                         x as usize + x_offset,
                         y as usize + y_offset,
-                        if v >= 120 { &fg } else { &bg },
+                        if v >= 128 { &fg } else { &bg },
                     )
                 });
             }

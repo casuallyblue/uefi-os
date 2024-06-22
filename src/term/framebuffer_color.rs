@@ -1,5 +1,7 @@
 use core::ops::Mul;
 
+// TODO: factor out this code per pixel format supported by EFI
+
 #[repr(packed)]
 #[allow(dead_code)]
 #[derive(Clone, PartialEq)]
@@ -41,6 +43,10 @@ impl FramebufferPixelBGR {
     }
 }
 
+/// Colors supported by this framebuffer terminal
+/// TODO: make this apply specifically to the
+/// framebuffer terminal rather than be stored
+/// with the pixel format code
 #[derive(Debug, Copy, Clone)]
 pub enum FBColor {
     Pink,
@@ -56,6 +62,7 @@ impl FBColor {
     }
 }
 
+/// TODO: unsure how this is used (its almost certainly wrong)
 impl Mul<f32> for FBColor {
     type Output = FBColor;
 

@@ -30,6 +30,10 @@ impl<'a> EFIFrameBuffer<'a> {
         }
     }
 
+    /// Get an unsafe copy of the framebuffer data
+    /// TODO: rewrite the kernel startup code to not
+    /// need this and instead just ask for a pointer
+    /// or range
     pub unsafe fn unsafe_clone(&self) -> Self {
         let pixels = self.pixels.as_ptr();
         let size = self.pixels.len();
@@ -41,6 +45,9 @@ impl<'a> EFIFrameBuffer<'a> {
         }
     }
 
+    /// Move all the pixels in a row left
+    /// TODO: make this take pixel format into account in case it is not
+    /// four bytes
     pub fn shift_left(&mut self, offset: usize) {
         let num_pixels = (self.height * self.width) - offset;
         unsafe {
@@ -52,6 +59,8 @@ impl<'a> EFIFrameBuffer<'a> {
         };
     }
 
+    /// Draw to a specific pixel on the framebuffer memory
+    /// TODO: make this generic over pixel format
     pub fn draw_pixel(&mut self, x: usize, y: usize, color: &FramebufferPixelBGR) {
         if x >= self.width || y >= self.height {
             return;
@@ -68,6 +77,9 @@ impl<'a> EFIFrameBuffer<'a> {
         self.height
     }
 
+    /// Invoke EFI routines to set up an area of memory for the framebuffer.
+    /// Currently we ask for a lower resolution than the max supported
+    /// in order for it to fit well as a smaller window on my monitor
     pub fn init_efi_framebuffer(system_table: &mut SystemTable<Boot>) -> Result<Self, uefi::Error> {
         let graphics_output_handle = *system_table
             .boot_services()
@@ -79,6 +91,9 @@ impl<'a> EFIFrameBuffer<'a> {
             .boot_services()
             .open_protocol_exclusive::<GraphicsOutput>(graphics_output_handle)?;
 
+        // Locate the last mode fitting the required parameters
+        // This was more important when not looking for a specific
+        // resolution
         let mode = if let Some(mode) = graphics_output
             .modes(system_table.boot_services())
             .filter(|mode| mode.info().pixel_format() == PixelFormat::Bgr)
@@ -92,6 +107,8 @@ impl<'a> EFIFrameBuffer<'a> {
 
         graphics_output.set_mode(&mode)?;
 
+        // Store the display size so we can refer to it later
+        // after boot services go away
         let (width, height) = mode.info().resolution();
 
         Ok(Self::new(

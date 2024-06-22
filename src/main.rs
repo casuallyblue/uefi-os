@@ -8,7 +8,7 @@
 extern crate alloc;
 
 use op_sys::{
-    kernel::{kernel_main, EFIStructures},
+    kernel::{EFIStructures, Kernel},
     memory::init_allocator,
     stop_cpu,
     term::framebuffer::EFIFrameBuffer,
@@ -55,7 +55,7 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
             },
         };
 
-        kernel_main(efi_data);
+        Kernel::new(&efi_data).main();
 
         stop_cpu();
     }

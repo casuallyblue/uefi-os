@@ -21,7 +21,7 @@ use crate::term::framebuffer::EFIFrameBuffer;
 
 pub struct EFIStructures<'a> {
     pub framebuffer: EFIFrameBuffer<'static>,
-    pub memory_map: MemoryMap<'a>,
+    pub memory_map: MemoryMap<'static>,
     pub system_table: SystemTable<Runtime>,
     pub kernel_image: &'a [u8],
     pub rsdt_ptr: *const c_void,
@@ -29,15 +29,14 @@ pub struct EFIStructures<'a> {
 
 pub struct Kernel<'a> {
     pub kernel_image: &'a [u8],
-    pub framebuffer: EFIFrameBuffer<'static>,
     pub page_table: Option<OffsetPageTable<'a>>,
     pub frame_allocator: Option<BootInfoFrameAllocator<'a>>,
 }
 
 impl<'a> Kernel<'a> {
-    fn set_framebuffer(&self) {
-        TERM.lock()
-            .set_framebuffer(unsafe { self.framebuffer.unsafe_clone() });
+    /// Set the current framebuffer
+    fn set_framebuffer(&self, framebuffer: EFIFrameBuffer<'static>) {
+        TERM.lock().set_framebuffer(framebuffer);
         TERM.lock().clear();
     }
 
@@ -45,41 +44,48 @@ impl<'a> Kernel<'a> {
     /// Warning: Should not be called more than once
     /// TODO: Do something to prevent it being called more than once
     unsafe fn init_frame_allocator(&mut self, memory_map: &'a MemoryMap<'a>) {
-        let regions_to_skip = vec![
-            self.kernel_image.as_ptr_range(),
-            transmute(self.framebuffer.pixels.as_ptr_range()),
-        ];
+        let mut regions_to_skip = vec![self.kernel_image.as_ptr_range()];
+
+        if let Some(framebuffer) = &TERM.lock().framebuffer {
+            regions_to_skip.push(transmute(framebuffer.pixels.as_ptr_range()));
+        }
 
         self.frame_allocator = Some(BootInfoFrameAllocator::new(memory_map, regions_to_skip));
     }
 
+    /// Load the existing page table from CR3
+    /// TODO: Update the page table for the actual OS instead
+    /// of keeping the UEFI page table
     fn init_paging(&mut self) {
         self.page_table = Some(unsafe { crate::paging::init() });
     }
-}
 
-pub fn kernel_main(efi_data: EFIStructures<'static>) {
-    let mut kernel = Kernel {
-        kernel_image: &efi_data.kernel_image,
-        framebuffer: efi_data.framebuffer,
-        page_table: None,
-        frame_allocator: None,
-    };
+    pub fn new(efi_data: &'a EFIStructures<'static>) -> Self {
+        let mut kernel = Kernel {
+            kernel_image: &efi_data.kernel_image,
+            page_table: None,
+            frame_allocator: None,
+        };
 
-    kernel.set_framebuffer();
+        kernel.set_framebuffer(unsafe { efi_data.framebuffer.unsafe_clone() });
+        unsafe { kernel.init_frame_allocator(&efi_data.memory_map) };
 
-    kprintln!("=== BOOT SEQUENCE START ===");
-    kprintln!("Initialized early framebuffer terminal");
+        kernel
+    }
 
-    kernel.init_paging();
+    pub fn main(&mut self) {
+        init_idt();
 
-    init_idt();
+        kprintln!("=== BOOT SEQUENCE START ===");
+        kprintln!("Initialized early framebuffer terminal");
 
-    unsafe { kernel.init_frame_allocator(&efi_data.memory_map) };
+        self.init_paging();
 
-    let mut executor = BasicExecutor::new();
-    executor.spawn(Task::new(keyboard::print_keypresses()));
-    executor.run();
+        // Set up a simple async executor to write the keyboard input to the terminal
+        let mut executor = BasicExecutor::new();
+        executor.spawn(Task::new(keyboard::print_keypresses()));
+        executor.run();
 
-    panic!("End of kernel_main");
+        panic!("End of Kernel::main");
+    }
 }

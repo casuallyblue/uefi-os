@@ -8,11 +8,14 @@
 extern crate alloc;
 
 use op_sys::{
-    kernel::kernel_main, memory::init_allocator, stop_cpu, term::framebuffer::EFIFrameBuffer,
-    KernelData,
+    kernel::{kernel_main, EFIStructures},
+    memory::init_allocator,
+    stop_cpu,
+    term::framebuffer::EFIFrameBuffer,
 };
 use uefi::{
     prelude::*,
+    proto::loaded_image::LoadedImage,
     table::{boot::MemoryType, cfg::ACPI2_GUID},
 };
 
@@ -30,20 +33,29 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
         .unwrap()
         .address;
 
+    let (location, size) = system_table
+        .boot_services()
+        .open_protocol_exclusive::<LoadedImage>(image_handle)
+        .unwrap()
+        .info();
+
     if let Ok(framebuffer) = EFIFrameBuffer::init_efi_framebuffer(&mut system_table) {
         let (system_table, memory_map) =
             system_table.exit_boot_services(MemoryType::RUNTIME_SERVICES_DATA);
 
         unsafe { init_allocator(&memory_map) };
 
-        let kernel_data = KernelData {
+        let efi_data = EFIStructures {
             framebuffer,
             memory_map,
             system_table,
             rsdt_ptr,
+            kernel_image: unsafe {
+                core::slice::from_raw_parts(location as *const u8, size as usize)
+            },
         };
 
-        kernel_main(kernel_data);
+        kernel_main(efi_data);
 
         stop_cpu();
     }

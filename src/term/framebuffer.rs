@@ -1,7 +1,9 @@
 use core::{fmt::Debug, slice::from_raw_parts_mut};
 
 use uefi::{
-    proto::console::gop::{GraphicsOutput, PixelFormat}, table::{boot::SearchType, Boot, SystemTable}, Identify, Status
+    proto::console::gop::{GraphicsOutput, PixelFormat},
+    table::{boot::SearchType, Boot, SystemTable},
+    Identify, Status,
 };
 
 use super::framebuffer_color::FramebufferPixelBGR;
@@ -25,6 +27,17 @@ impl<'a> EFIFrameBuffer<'a> {
             pixels: fb_ptr,
             height,
             width,
+        }
+    }
+
+    pub unsafe fn unsafe_clone(&self) -> Self {
+        let pixels = self.pixels.as_ptr();
+        let size = self.pixels.len();
+
+        EFIFrameBuffer {
+            pixels: unsafe { from_raw_parts_mut(pixels as *mut FramebufferPixelBGR, size) },
+            height: self.height,
+            width: self.width,
         }
     }
 
@@ -59,7 +72,8 @@ impl<'a> EFIFrameBuffer<'a> {
         let graphics_output_handle = *system_table
             .boot_services()
             .locate_handle_buffer(SearchType::ByProtocol(&GraphicsOutput::GUID))?
-            .first().unwrap();
+            .first()
+            .unwrap();
 
         let graphics_output = &mut *system_table
             .boot_services()

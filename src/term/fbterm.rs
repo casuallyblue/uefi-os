@@ -1,7 +1,7 @@
 use core::fmt::Arguments;
 
 use ab_glyph::{point, Font, FontRef, PxScaleFont, ScaleFont};
-use alloc::fmt::format;
+use alloc::{boxed::Box, fmt::format, vec};
 
 use crate::term::framebuffer::EFIFrameBuffer;
 
@@ -9,10 +9,18 @@ use ansi_parser::{AnsiParser, Output};
 
 pub use super::framebuffer_color::FBColor;
 
+#[derive(Debug, Copy, Clone)]
+pub enum Tile {
+    Character(char),
+}
+
 #[derive(Debug)]
 pub struct FBTerm<'a> {
     pub framebuffer: Option<EFIFrameBuffer<'a>>,
+    pub tiles: Box<[Tile]>,
+
     term_font: PxScaleFont<FontRef<'a>>,
+
     current_column: usize,
     current_row: usize,
 
@@ -27,6 +35,17 @@ pub struct FBTerm<'a> {
 }
 
 const SCALE: f32 = 20.0;
+
+pub trait Term {
+    fn clear(&mut self);
+    fn scroll_screen(&mut self);
+
+    fn write_fmt(&mut self, args: Arguments);
+
+    fn print_char_at(&mut self, x: usize, y: usize, c: char);
+    fn print_ref_str(&mut self, s: &str);
+    fn print(&mut self, s: impl AsRef<str>);
+}
 
 impl<'a> FBTerm<'a> {
     pub fn write_fmt(&mut self, args: Arguments) {
@@ -57,6 +76,8 @@ impl<'a> FBTerm<'a> {
 
         FBTerm {
             framebuffer: None,
+            tiles: Box::new([]),
+
             term_font: scaled_font,
             current_column: 0,
             current_row: 0,
@@ -80,6 +101,10 @@ impl<'a> FBTerm<'a> {
 
         self.max_column = (width - (width % self.character_width)) / self.character_width;
         self.max_row = (height - (height % self.character_height)) / self.character_height;
+
+        let tiles = vec![Tile::Character(' '); self.max_column * self.max_row];
+
+        self.tiles = tiles.into_boxed_slice();
     }
 
     pub fn print_char_at(&mut self, x: usize, y: usize, c: char) {
@@ -137,7 +162,7 @@ impl<'a> FBTerm<'a> {
             fb.shift_left(line_offset);
 
             for pixel in end_pixel..end_pixel + line_offset {
-                fb.pixels[pixel] = self.background_color.clone().into();
+                fb.pixels[pixel] = self.background_color.into();
             }
             self.current_row -= 1;
         }

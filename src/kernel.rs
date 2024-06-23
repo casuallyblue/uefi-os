@@ -46,7 +46,10 @@ impl<'a> Kernel<'a> {
         let mut regions_to_skip = vec![self.kernel_image.as_ptr_range()];
 
         if let Some(framebuffer) = &TERM.lock().framebuffer {
-            regions_to_skip.push(transmute(framebuffer.pixels.as_ptr_range()));
+            regions_to_skip.push(transmute::<
+                core::ops::Range<*const crate::term::framebuffer_color::FramebufferPixelBGR>,
+                core::ops::Range<*const u8>,
+            >(framebuffer.pixels.as_ptr_range()));
         }
 
         self.frame_allocator = Some(BootInfoFrameAllocator::new(memory_map, regions_to_skip));
@@ -61,7 +64,7 @@ impl<'a> Kernel<'a> {
 
     pub fn new(efi_data: &'a EFIStructures<'static>) -> Self {
         let mut kernel = Kernel {
-            kernel_image: &efi_data.kernel_image,
+            kernel_image: efi_data.kernel_image,
             page_table: None,
             frame_allocator: None,
         };

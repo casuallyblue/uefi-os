@@ -15,7 +15,7 @@ pub struct BootInfoFrameAllocator<'a> {
 impl<'a> BootInfoFrameAllocator<'a> {
     pub unsafe fn new(regions: &'a MemoryMap<'a>, regions_to_skip: Vec<Range<*const u8>>) -> Self {
         BootInfoFrameAllocator {
-            frames: Box::new(iter_usable_memory(&regions)),
+            frames: Box::new(iter_usable_memory(regions)),
             regions_to_skip,
         }
     }
@@ -23,7 +23,8 @@ impl<'a> BootInfoFrameAllocator<'a> {
 
 unsafe impl<'a> FrameAllocator<Size4KiB> for BootInfoFrameAllocator<'a> {
     fn allocate_frame(&mut self) -> Option<PhysFrame> {
-        while let Some(frame) = self.frames.next() {
+        #[allow(clippy::never_loop)]
+        for frame in self.frames.by_ref() {
             for region in &self.regions_to_skip {
                 if region.contains(&(frame.start_address().as_u64() as *const u8))
                     || region

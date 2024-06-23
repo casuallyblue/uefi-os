@@ -28,8 +28,7 @@ fn main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status {
     let rsdt_ptr = system_table
         .config_table()
         .iter()
-        .filter(|entry| entry.guid == ACPI2_GUID)
-        .next()
+        .find(|entry| entry.guid == ACPI2_GUID)
         .unwrap()
         .address;
 

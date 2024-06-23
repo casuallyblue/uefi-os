@@ -25,9 +25,15 @@ impl BasicExecutor {
             let mut context = Context::from_waker(&waker);
             match task.poll(&mut context) {
                 Poll::Ready(()) => {}
-                Poll::Pending => self.task_queue.push_back(task)
+                Poll::Pending => self.task_queue.push_back(task),
             }
         }
+    }
+}
+
+impl Default for BasicExecutor {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -39,7 +45,7 @@ fn dummy_raw_waker() -> RawWaker {
 
     let vtable = &RawWakerVTable::new(clone, no_op, no_op, no_op);
 
-    RawWaker::new(0 as *const (), vtable)
+    RawWaker::new(core::ptr::null::<()>(), vtable)
 }
 
 fn dummy_waker() -> Waker {

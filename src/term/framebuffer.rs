@@ -45,7 +45,7 @@ impl<'a> EFIFrameBuffer<'a> {
         }
     }
 
-    /// Move all the pixels in a row left
+    /// Move all the pixels in the framebuffer to the left/up
     /// TODO: make this take pixel format into account in case it is not
     /// four bytes
     pub fn shift_left(&mut self, offset: usize) {
